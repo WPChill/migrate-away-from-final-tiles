@@ -29,7 +29,6 @@ if ( ! class_exists( 'Modula_Plugin_Checker' ) ) {
 			}
 
 			return self::$instance;
-
 		}
 
 		/**
@@ -38,7 +37,6 @@ if ( ! class_exists( 'Modula_Plugin_Checker' ) ) {
 		 * @since 1.0.0
 		 */
 		public function __construct() {
-
 		}
 
 		/**
@@ -105,7 +103,7 @@ if ( ! class_exists( 'Modula_Plugin_Checker' ) ) {
 			$plugin_path = self::_get_plugin_basename_from_slug( $slug );
 
 			if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_path ) ) {
-				include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+				include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 				return is_plugin_active( $plugin_path );
 			}
@@ -144,12 +142,13 @@ if ( ! class_exists( 'Modula_Plugin_Checker' ) ) {
 			);
 
 			if ( ! $check['installed'] ) {
-
 				$label  = esc_html__( 'Install & Activate: Modula Lite', 'modula-final-tiles-migrator' );
 				$action = 'install';
-				$url    = '#';
+				$url    = wp_nonce_url(
+					self_admin_url( 'update.php?action=install-plugin&plugin=modula-best-grid-gallery' ),
+					'install-plugin_modula-best-grid-gallery'
+				);
 			} else {
-
 				$label  = esc_html__( 'Activate: Modula Lite', 'modula-final-tiles-migrator' );
 				$action = 'activate';
 				$url    = add_query_arg(
@@ -174,4 +173,3 @@ if ( ! class_exists( 'Modula_Plugin_Checker' ) ) {
 		}
 	}
 }
-

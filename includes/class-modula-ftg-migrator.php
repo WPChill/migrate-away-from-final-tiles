@@ -25,26 +25,29 @@ class Modula_FTG_Migrator {
 		require_once MODULA_FTG_MIGRATOR_PATH . 'includes/class-modula-plugin-checker.php';
 
 		if ( class_exists( 'Modula_Plugin_Checker' ) ) {
-
 			$modula_checker = Modula_Plugin_Checker::get_instance();
 
 			if ( ! $modula_checker->check_for_modula() ) {
-
 				if ( is_admin() ) {
 					add_action( 'admin_notices', array( $modula_checker, 'display_modula_notice' ) );
 				}
-
 			} else {
 
 				// Add AJAX
-				add_action( 'wp_ajax_modula_importer_final_tiles_gallery_import', array(
-					$this,
-					'final_tiles_gallery_import'
-				) );
-				add_action( 'wp_ajax_modula_importer_final_tiles_gallery_imported_update', array(
-					$this,
-					'update_imported'
-				) );
+				add_action(
+					'wp_ajax_modula_importer_final_tiles_gallery_import',
+					array(
+						$this,
+						'final_tiles_gallery_import',
+					)
+				);
+				add_action(
+					'wp_ajax_modula_importer_final_tiles_gallery_imported_update',
+					array(
+						$this,
+						'update_imported',
+					)
+				);
 
 				// Add infor used for Modula's migrate functionality
 				add_filter( 'modula_migrator_sources', array( $this, 'add_source' ), 15, 1 );
@@ -53,7 +56,6 @@ class Modula_FTG_Migrator {
 				add_filter( 'modula_migrator_images_final_tiles', array( $this, 'migrator_images' ), 15, 2 );
 			}
 		}
-
 	}
 
 	/**
@@ -68,7 +70,6 @@ class Modula_FTG_Migrator {
 		}
 
 		return self::$instance;
-
 	}
 
 	/**
@@ -84,50 +85,50 @@ class Modula_FTG_Migrator {
 		$empty_galleries = array();
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
-			$galleries = $wpdb->get_results( " SELECT * FROM " . $wpdb->prefix . "finaltiles_gallery" );
-			if ( count( $galleries ) != 0 ) {
+			$galleries = $wpdb->get_results( ' SELECT * FROM ' . $wpdb->prefix . 'finaltiles_gallery' );
+			if ( 0 !== count( $galleries ) ) {
 				foreach ( $galleries as $key => $gallery ) {
 					$count = $this->images_count( $gallery->Id );
 
-					if ( $count == 0 ) {
+					if ( 0 === $count ) {
 						unset( $galleries[ $key ] );
 						$empty_galleries[ $key ] = $gallery;
 					}
 				}
 
-				if ( count( $galleries ) != 0 ) {
+				if ( 0 !== count( $galleries ) ) {
 					$return_galleries['valid_galleries'] = $galleries;
 				}
-				if ( count( $empty_galleries ) != 0 ) {
+				if ( 0 !== count( $empty_galleries ) ) {
 					$return_galleries['empty_galleries'] = $empty_galleries;
 				}
 
-				if ( count( $return_galleries ) != 0 ) {
+				if ( 0 !== count( $return_galleries ) ) {
 					return $return_galleries;
 				}
 			}
 		}
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "FinalTiles_gallery'" ) ) {
-			$galleries = $wpdb->get_results( " SELECT * FROM " . $wpdb->prefix . "FinalTiles_gallery" );
-			if ( count( $galleries ) != 0 ) {
+			$galleries = $wpdb->get_results( ' SELECT * FROM ' . $wpdb->prefix . 'FinalTiles_gallery' );
+			if ( 0 !== count( $galleries ) ) {
 				foreach ( $galleries as $key => $gallery ) {
 					$count = $this->images_count( $gallery->Id );
 
-					if ( $count == 0 ) {
+					if ( 0 === $count ) {
 						unset( $galleries[ $key ] );
 						$empty_galleries[ $key ] = $gallery;
 					}
 				}
 
-				if ( count( $galleries ) != 0 ) {
+				if ( 0 !== count( $galleries ) ) {
 					$return_galleries['valid_galleries'] = $galleries;
 				}
-				if ( count( $empty_galleries ) != 0 ) {
+				if ( 0 !== count( $empty_galleries ) ) {
 					$return_galleries['empty_galleries'] = $empty_galleries;
 				}
 
-				if ( count( $return_galleries ) != 0 ) {
+				if ( 0 !== count( $return_galleries ) ) {
 					return $return_galleries;
 				}
 			}
@@ -150,18 +151,24 @@ class Modula_FTG_Migrator {
 		global $wpdb;
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
 			// Get images from Final Tiles
-			$sql    = $wpdb->prepare( "SELECT COUNT(Id) FROM " . $wpdb->prefix . "finaltiles_gallery_images
-    						WHERE gid = %d ",
-				$id );
-			$images = $wpdb->get_results( $sql );
+			$images = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT COUNT(Id) FROM ' . $wpdb->prefix . 'finaltiles_gallery_images
+    						WHERE gid = %d ',
+					$id
+				)
+			);
 		}
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "FinalTiles_gallery'" ) ) {
 			// Get images from Final Tiles
-			$sql    = $wpdb->prepare( "SELECT COUNT(Id) FROM " . $wpdb->prefix . "FinalTiles_gallery_images
-    						WHERE gid = %d",
-				$id );
-			$images = $wpdb->get_results( $sql );
+			$images = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT COUNT(Id) FROM ' . $wpdb->prefix . 'FinalTiles_gallery_images
+    						WHERE gid = %d',
+					$id
+				)
+			);
 		}
 
 		$count = get_object_vars( $images[0] );
@@ -184,7 +191,6 @@ class Modula_FTG_Migrator {
 		$modula_importer = Modula_Importer::get_instance();
 
 		// Set max execution time so we don't timeout
-		ini_set( 'max_execution_time', 0 );
 		set_time_limit( 0 );
 
 		// If no gallery ID, get from AJAX request
@@ -198,17 +204,15 @@ class Modula_FTG_Migrator {
 			}
 
 			$gallery_id = absint( $_POST['id'] );
-
 		}
 
 		$imported_galleries = get_option( 'modula_importer' );
 
 		// If already migrated don't migrate
 		if ( isset( $imported_galleries['galleries']['final_tiles'][ $gallery_id ] ) ) {
-
 			$modula_gallery = get_post_type( $imported_galleries['galleries']['final_tiles'][ $gallery_id ] );
 
-			if ( 'modula-gallery' == $modula_gallery ) {
+			if ( 'modula-gallery' === $modula_gallery ) {
 				// Trigger delete function if option is set to delete
 				if ( isset( $_POST['clean'] ) && 'delete' == $_POST['clean'] ) {
 					$this->clean_entries( $gallery_id );
@@ -221,19 +225,25 @@ class Modula_FTG_Migrator {
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
 
 			// Get gallery configuration
-			$sql     = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "finaltiles_gallery
-    						WHERE id = %d",
-				$gallery_id );
-			$gallery = $wpdb->get_row( $sql );
+			$gallery = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT * FROM ' . $wpdb->prefix . 'finaltiles_gallery
+    						WHERE id = %d',
+					$gallery_id
+				)
+			);
 		}
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "FinalTiles_gallery'" ) ) {
 
 			// Get gallery configuration
-			$sql     = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "FinalTiles_gallery
-    						WHERE id = %d",
-				$gallery_id );
-			$gallery = $wpdb->get_row( $sql );
+			$gallery = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT * FROM ' . $wpdb->prefix . 'FinalTiles_gallery
+    						WHERE id = %d',
+					$gallery_id
+				)
+			);
 		}
 
 		$images = $modula_importer->prepare_images( 'final_tiles', $gallery_id );
@@ -245,20 +255,25 @@ class Modula_FTG_Migrator {
 		if ( is_array( $images ) && count( $images ) > 0 ) {
 			// Add each image to Media Library
 			foreach ( $images as $image ) {
-
-				$modula_images[] = apply_filters( 'modula_migrate_image_data', array(
-					'id'          => absint( $image->imageId ),
-					'alt'         => sanitize_text_field( $image->alt ),
-					'title'       => sanitize_text_field( $image->title ),
-					'description' => wp_filter_post_kses( $image->description ),
-					'halign'      => 'center',
-					'valign'      => 'middle',
-					'link'        => esc_url_raw( $image->link ),
-					'target'      => ( isset( $image->target ) && '_blank' == $image->target ) ? 1 : 0,
-					'width'       => 2,
-					'height'      => 2,
-					'filters'     => ''
-				), $image, $gallery_config, 'final_tiles' );
+				$modula_images[] = apply_filters(
+					'modula_migrate_image_data',
+					array(
+						'id'          => absint( $image->imageId ),
+						'alt'         => sanitize_text_field( $image->alt ),
+						'title'       => sanitize_text_field( $image->title ),
+						'description' => wp_filter_post_kses( $image->description ),
+						'halign'      => 'center',
+						'valign'      => 'middle',
+						'link'        => esc_url_raw( $image->link ),
+						'target'      => ( isset( $image->target ) && '_blank' == $image->target ) ? 1 : 0,
+						'width'       => 2,
+						'height'      => 2,
+						'filters'     => '',
+					),
+					$image,
+					$gallery_config,
+					'final_tiles'
+				);
 			}
 		}
 
@@ -273,13 +288,14 @@ class Modula_FTG_Migrator {
 		// Get Modula Gallery defaults, used to set modula-settings metadata
 		$modula_settings = apply_filters( 'modula_migrate_gallery_data', Modula_CPT_Fields_Helper::get_defaults(), $gallery_config, 'final_tiles' );
 
-
 		// Create Modula CPT
-		$modula_gallery_id = wp_insert_post( array(
-			'post_type'   => 'modula-gallery',
-			'post_status' => 'publish',
-			'post_title'  => sanitize_text_field( $gallery_config->name ),
-		) );
+		$modula_gallery_id = wp_insert_post(
+			array(
+				'post_type'   => 'modula-gallery',
+				'post_status' => 'publish',
+				'post_title'  => sanitize_text_field( $gallery_config->name ),
+			)
+		);
 
 		// Attach meta modula-settings to Modula CPT
 		update_post_meta( $modula_gallery_id, 'modula-settings', $modula_settings );
@@ -291,9 +307,13 @@ class Modula_FTG_Migrator {
 		$modula_shortcode = '[modula id="' . $modula_gallery_id . '"]';
 
 		// Replace Final Tiles Grid Gallery shortcode with Modula Shortcode in Posts, Pages and CPTs
-		$sql = $wpdb->prepare( "UPDATE " . $wpdb->prefix . "posts SET post_content = REPLACE(post_content, '%s', '%s')",
-			$ftg_shortcode, $modula_shortcode );
-		$wpdb->query( $sql );
+		$wpdb->query(
+			$wpdb->prepare(
+				'UPDATE ' . $wpdb->prefix . "posts SET post_content = REPLACE(post_content, '%s', '%s')", // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder
+				$ftg_shortcode,
+				$modula_shortcode
+			)
+		);
 
 		if ( isset( $_POST['clean'] ) && 'delete' == $_POST['clean'] ) {
 			$this->clean_entries( $gallery_id );
@@ -346,8 +366,6 @@ class Modula_FTG_Migrator {
 
 		echo esc_url( $url );
 		wp_die();
-
-
 	}
 
 
@@ -362,11 +380,13 @@ class Modula_FTG_Migrator {
 	 */
 	public function modula_import_result( $success, $message, $modula_gallery_id = false ) {
 
-		echo json_encode( array(
-			'success'           => (bool) $success,
-			'message'           => (string) $message,
-			'modula_gallery_id' => $modula_gallery_id
-		) );
+		echo json_encode(
+			array(
+				'success'           => (bool) $success,
+				'message'           => (string) $message,
+				'modula_gallery_id' => $modula_gallery_id,
+			)
+		);
 		die;
 	}
 
@@ -382,21 +402,14 @@ class Modula_FTG_Migrator {
 
 		global $wpdb;
 
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
-			$sql      = $wpdb->prepare( "DELETE FROM  " . $wpdb->prefix . "finaltiles_gallery WHERE Id = $gallery_id" );
-			$sql_meta = $wpdb->prepare( "DELETE FROM  " . $wpdb->prefix . "finaltiles_gallery_images WHERE gid = $gallery_id" );
-
-
-			$wpdb->query( $sql );
-			$wpdb->query( $sql_meta );
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'finaltiles_gallery' ) ) ) {
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}finaltiles_gallery WHERE Id = %d", $gallery_id ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}finaltiles_gallery_images WHERE gid = %d", $gallery_id ) );
 		}
 
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "FinalTiles_gallery'" ) ) {
-			$sql_2      = $wpdb->prepare( "DELETE FROM  " . $wpdb->prefix . "FinalTiles_gallery WHERE Id = $gallery_id" );
-			$sql_meta_2 = $wpdb->prepare( "DELETE FROM  " . $wpdb->prefix . "FinalTiles_gallery_images WHERE gid = $gallery_id" );
-
-			$wpdb->query( $sql_2 );
-			$wpdb->query( $sql_meta_2 );
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'FinalTiles_gallery' ) ) ) {
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}FinalTiles_gallery WHERE Id = %d", $gallery_id ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}FinalTiles_gallery_images WHERE gid = %d", $gallery_id ) );
 		}
 	}
 
@@ -414,16 +427,16 @@ class Modula_FTG_Migrator {
 		global $wpdb;
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
-			$final_tiles = $wpdb->get_results( " SELECT COUNT(Id) FROM " . $wpdb->prefix . "finaltiles_gallery" );
+			$final_tiles = $wpdb->get_results( ' SELECT COUNT(Id) FROM ' . $wpdb->prefix . 'finaltiles_gallery' );
 		}
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "FinalTiles_gallery'" ) ) {
-			$final_tiles = $wpdb->get_results( " SELECT COUNT(Id) FROM " . $wpdb->prefix . "FinalTiles_gallery" );
+			$final_tiles = $wpdb->get_results( ' SELECT COUNT(Id) FROM ' . $wpdb->prefix . 'FinalTiles_gallery' );
 		}
 
-		$final_tiles_return = ( null != $final_tiles ) ? get_object_vars( $final_tiles[0] ) : false;
+		$final_tiles_return = ( null !== $final_tiles ) ? get_object_vars( $final_tiles[0] ) : false;
 
-		if ( $final_tiles && null != $final_tiles && ! empty( $final_tiles ) && $final_tiles_return && '0' != $final_tiles_return['COUNT(Id)'] ) {
+		if ( $final_tiles && null !== $final_tiles && ! empty( $final_tiles ) && $final_tiles_return && '0' !== $final_tiles_return['COUNT(Id)'] ) {
 			$sources['final_tiles'] = 'Final Tiles Gallery';
 		}
 
@@ -468,7 +481,7 @@ class Modula_FTG_Migrator {
 			'id'       => $gallery->Id,
 			'imported' => $imported,
 			'title'    => '<a href="' . admin_url( '/post.php?post=' . $gallery->Id . '&action=edit' ) . '" target="_blank">' . esc_html( $ftg_config->name ) . '</a>',
-			'count'    => $this->images_count( $gallery->Id )
+			'count'    => $this->images_count( $gallery->Id ),
 		);
 	}
 
@@ -489,24 +502,28 @@ class Modula_FTG_Migrator {
 		// Seems like on some servers tables are saved lowercase
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
 			// Get images from Final Tiles
-			$sql    = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "finaltiles_gallery_images
+			$images = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT * FROM ' . $wpdb->prefix . "finaltiles_gallery_images
     						WHERE gid = %d
     						ORDER BY 'setOrder' ASC",
-				$data );
-			$images = $wpdb->get_results( $sql );
+					$data
+				)
+			);
 		}
 
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "FinalTiles_gallery'" ) ) {
 			// Get images from Final Tiles
-			$sql    = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "FinalTiles_gallery_images
+			$images = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT * FROM ' . $wpdb->prefix . "FinalTiles_gallery_images
     						WHERE gid = %d
     						ORDER BY 'setOrder' ASC",
-				$data );
-			$images = $wpdb->get_results( $sql );
+					$data
+				)
+			);
 		}
 
 		return $images;
-
 	}
-
 }
