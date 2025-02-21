@@ -426,6 +426,8 @@ class Modula_FTG_Migrator {
 
 		global $wpdb;
 
+		$final_tiles = false;
+
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "finaltiles_gallery'" ) ) {
 			$final_tiles = $wpdb->get_results( ' SELECT COUNT(Id) FROM ' . $wpdb->prefix . 'finaltiles_gallery' );
 		}
@@ -434,7 +436,7 @@ class Modula_FTG_Migrator {
 			$final_tiles = $wpdb->get_results( ' SELECT COUNT(Id) FROM ' . $wpdb->prefix . 'FinalTiles_gallery' );
 		}
 
-		$final_tiles_return = ( null !== $final_tiles ) ? get_object_vars( $final_tiles[0] ) : false;
+		$final_tiles_return = ( null !== $final_tiles && isset( $final_tiles[0] ) ) ? get_object_vars( $final_tiles[0] ) : false;
 
 		if ( $final_tiles && null !== $final_tiles && ! empty( $final_tiles ) && $final_tiles_return && '0' !== $final_tiles_return['COUNT(Id)'] ) {
 			$sources['final_tiles'] = 'Final Tiles Gallery';
